@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HTML5 Canvas</title>
+</head>
+<body>
+	<canvas id="canvas" width="800" height="500">This browser doesn't support canvas</canvas>
+	<script>
+		var context = document.getElementById('canvas').getContext('2d'),
+			tempCanvas = document.createElement('canvas'),
+			contextTemp = tempCanvas.getContext('2d');
+
+		var bgCircle = new Image(),
+			paddingXCircle = 218,
+			paddingYCircle = 246,
+			radiusCircle = 99;
+			
+		var bgTriangle = new Image(),
+			paddingTriangleX = 191,
+			paddingTriangleY = 65,
+			widthTriangle = 422,
+			heightTriangle = 210;
+
+
+        var bgTriangleDiff = new Image();
+
+        // Temporary canvas
+		tempCanvas.width = 800;
+		tempCanvas.height = 500;
+
+		// Access control
+		bgCircle.crossOrigin = 'anonymous';
+
+		// Backgrounds for shapes
+		bgCircle.src = "Pattern_A.png",
+		bgTriangle.src = "Pattern_B.png";
+
+        bgTriangleDiff.src = "Pattern_A.png"
+
+// Load background and create the circle
+bgCircle.onload = function(){
+    contextTemp.drawImage(bgCircle, 0, 0);
+
+    contextTemp.beginPath();
+    contextTemp.arc(paddingXCircle, paddingYCircle, radiusCircle, Math.PI * 2, false);
+    contextTemp.globalCompositeOperation = "destination-atop";
+    contextTemp.fill();
+
+    var imageData = contextTemp.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    var data = imageData.data;
+
+    // Colorize background
+    for(var i = 0; i < data.length; i += 4) {
+        data[i] -= 10;
+        data[i + 1] += 40;
+        data[i + 2] -= 40;
+    }
+
+    contextTemp.putImageData(imageData, 0, 0);
+    context.drawImage(tempCanvas, 0, 0);
+
+    contextTemp.clearRect(0,0,800,500);
+};
+
+function loadTriangle(data) {
+    contextTemp.clearRect(0,0,800,500);
+
+    var backgroungImage = contextTemp.createPattern(data, "repeat");
+    contextTemp.drawImage(data, 455, 0);
+
+    contextTemp.beginPath();
+    contextTemp.moveTo(widthTriangle/2 + paddingTriangleX, paddingTriangleY);
+    contextTemp.lineTo(widthTriangle + paddingTriangleX, heightTriangle + paddingTriangleY);
+    contextTemp.lineTo(paddingTriangleX, heightTriangle + paddingTriangleY);
+
+    contextTemp.fillStyle = "#ff0003";
+    contextTemp.globalCompositeOperation = "destination-atop";
+    contextTemp.fill();
+
+    context.drawImage(tempCanvas, 0, 0);
+}
+    // Load background and create the triangle
+    bgTriangle.onload = function(){
+        loadTriangle(bgTriangle)
+    };
+
+    function imageLoaded(patternType) {
+        console.log('inside imageLoaded');
+        if (patternType == 0 ) {
+            loadTriangle(bgTriangleDiff);
+        } else {
+            loadTriangle(bgTriangle);
+        }
+    }
+
+    </script>
+</body>
+</html>
